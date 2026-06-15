@@ -54,6 +54,18 @@ jobs:
         continue-on-error: true
         run: eldev -p -dtT lint
 
-      - name: Run tests
+      - name: Run tests (Unix, packaged mode)
+        if: runner.os != 'Windows'
         shell: bash
         run: eldev -p -dtT test
+
+      - name: Run tests (Windows, source mode)
+        # Eldev's packaged mode (`-p`) spawns a child Emacs process with a
+        # very long bootstrap command line, which Emacs on Windows cannot
+        # handle (`file-error "Spawning child process" "Invalid argument"`
+        # due to the OS argv length limit).  Run tests in source mode on
+        # Windows so the matrix still covers Windows; Unix runners keep
+        # packaged-mode tests as the canonical install-simulation gate.
+        if: runner.os == 'Windows'
+        shell: bash
+        run: eldev -dtT test
