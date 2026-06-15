@@ -1,0 +1,3 @@
+(typespec-mode :fetcher github
+               :repo "jeremymeng/typespec-mode"
+               :files ("typespec-*.el" "snippets"))

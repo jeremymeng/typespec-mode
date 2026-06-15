@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: namespace-block
+# key: namespace-block
+# --
+namespace ${1:Name} {
+  $0
+}

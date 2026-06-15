@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: @put
+# key: put
+# --
+@put
+op ${1:name}(${2:params}): ${3:ReturnType};$0

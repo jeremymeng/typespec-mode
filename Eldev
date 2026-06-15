@@ -1,0 +1,10 @@
+;; -*- mode: emacs-lisp; lexical-binding: t -*-
+
+(eldev-use-package-archive 'gnu-elpa)
+(eldev-use-package-archive 'nongnu-elpa)
+(eldev-use-package-archive 'melpa-stable)
+
+(eldev-add-extra-dependencies 'test 'yasnippet)
+(eldev-add-extra-dependencies 'test 'flycheck)
+
+(setf eldev-test-fileset '("./test/*.el"))

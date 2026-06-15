@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: @post
+# key: post
+# --
+@post
+op ${1:name}(${2:params}): ${3:ReturnType};$0
