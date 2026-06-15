@@ -4,6 +4,14 @@
 (eldev-use-package-archive 'nongnu-elpa)
 (eldev-use-package-archive 'melpa-stable)
 
+;; Emacs on Windows CI runners (and many local Windows installs) cannot
+;; reliably verify package signatures from GNU/NonGNU ELPA because no
+;; usable ``gpg`` executable is on PATH.  This causes
+;; ``bad-signature'' errors during ``eldev`` dependency install.
+;; Linux and macOS keep the default (signed) behavior.
+(when (eq system-type 'windows-nt)
+  (setq package-check-signature nil))
+
 (eldev-add-extra-dependencies 'test 'yasnippet)
 (eldev-add-extra-dependencies 'test 'flycheck)
 
