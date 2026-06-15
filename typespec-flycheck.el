@@ -42,35 +42,46 @@
 
 ;; The checker is registered only after Flycheck loads, so the user can
 ;; `(require 'typespec-flycheck)' even on Emacs sessions without Flycheck.
+;;
+;; The checker definition uses Flycheck macros (`flycheck-def-executable-var',
+;; `flycheck-define-checker').  We wrap them in `(eval '(progn …) t)' so the
+;; macros are expanded at runtime — when Flycheck is guaranteed to be loaded —
+;; rather than at byte-compile time.  Without this, byte-compiling
+;; `typespec-flycheck.el' without Flycheck installed compiles the macro calls
+;; as ordinary function calls, and the resulting bytecode fails at runtime
+;; with `(void-variable typespec)' when Flycheck later loads.
 (with-eval-after-load 'flycheck
-  (flycheck-def-executable-var typespec "tsp")
+  (eval
+   '(progn
+      (flycheck-def-executable-var typespec "tsp")
 
-  (flycheck-define-checker typespec
-    "A TypeSpec syntax checker using the TypeSpec compiler.
+      (flycheck-define-checker typespec
+        "A TypeSpec syntax checker using the TypeSpec compiler.
 
 See URL `https://typespec.io/'."
-    :command ("tsp" "compile" "--no-emit"
-              (eval typespec-compile-extra-args)
-              ".")
-    :error-patterns
-    ((error line-start (file-name) ":" line ":" column " - error "
-            (one-or-more (any alphanumeric)) ": " (message) line-end)
-     (warning line-start (file-name) ":" line ":" column " - warning "
-              (one-or-more (any alphanumeric)) ": " (message) line-end))
-    :error-filter
-    (lambda (errors)
-      ;; tsp emits paths relative to the project root; resolve to absolute
-      ;; so Flycheck can route diagnostics to the right buffer.
-      (let ((root (or (typespec-project-root) default-directory)))
-        (dolist (err errors)
-          (let ((fname (flycheck-error-filename err)))
-            (when (and fname (not (file-name-absolute-p fname)))
-              (setf (flycheck-error-filename err)
-                    (expand-file-name fname root))))))
-      errors)
-    :modes (typespec-mode typespec-ts-mode)
-    :working-directory (lambda (_checker)
-                         (or (typespec-project-root) default-directory)))
+        :command ("tsp" "compile" "--no-emit"
+                  (eval typespec-compile-extra-args)
+                  ".")
+        :error-patterns
+        ((error line-start (file-name) ":" line ":" column " - error "
+                (one-or-more (any alphanumeric)) ": " (message) line-end)
+         (warning line-start (file-name) ":" line ":" column " - warning "
+                  (one-or-more (any alphanumeric)) ": " (message) line-end))
+        :error-filter
+        (lambda (errors)
+          ;; tsp emits paths relative to the project root; resolve to absolute
+          ;; so Flycheck can route diagnostics to the right buffer.
+          (let ((root (or (typespec-project-root) default-directory)))
+            (dolist (err errors)
+              (let ((fname (flycheck-error-filename err)))
+                (when (and fname (not (file-name-absolute-p fname)))
+                  (setf (flycheck-error-filename err)
+                        (expand-file-name fname root))))))
+          errors)
+        :modes (typespec-mode typespec-ts-mode)
+        :working-directory (lambda (_checker)
+                             (or (typespec-project-root) default-directory))))
+   t)
 
   (add-to-list 'flycheck-checkers 'typespec))
 

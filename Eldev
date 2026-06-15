@@ -7,4 +7,11 @@
 (eldev-add-extra-dependencies 'test 'yasnippet)
 (eldev-add-extra-dependencies 'test 'flycheck)
 
+;; Bundle the snippets directory into the installable package so that
+;; `typespec-snippets-directory' (which is computed from the
+;; `.elc' location at load time) actually has a `snippets/'
+;; sibling after eldev's packaged-mode install.
+(setf eldev-files-to-package
+      `(:or ,eldev-files-to-package "./snippets" "./snippets/**"))
+
 (setf eldev-test-fileset '("./test/*.el"))
